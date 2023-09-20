@@ -1,0 +1,5 @@
+
+#!/bin/bash
+
+echo "Martin Pettai"
+echo "IT21"

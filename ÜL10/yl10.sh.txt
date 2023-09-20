@@ -1,0 +1,41 @@
+#!/bin/bash
+
+# Küsime kasutajanime
+read -p "Sisesta kasutajanimi: " kasutajanimi
+
+# Küsime parooli ilma ekraanil kuvamata
+read -s -p "Sisesta parool: " parool
+
+# Loome kasutaja
+sudo useradd -m -p $(openssl passwd -1 $parool) -s /bin/bash $kasutajanimi
+
+# Vaatame, kas kasutaja loodi edukalt
+if [ $? -eq 0 ]; then
+    echo "Kasutaja $kasutajanimi loodud edukalt."
+
+    # Määrame kodukataloogi
+    kodukataloog="/home/$kasutajanimi/kataloog"
+    sudo mkdir -p $kodukataloog
+
+    # Loome tervitusteksti faili
+    tervitustekst="Tere tulemast, $kasutajanimi!"
+    echo $tervitustekst | sudo tee $kodukataloog/teretulemast_$kasutajanimi.txt > /dev/null
+
+    # Küsime grupi nime kasutajalt
+    read -p "Sisesta grupi nimi (vajadusel jäta tühi): " grupp
+
+    # Kui gruppi ei ole määratud, kasutame vaikimisi "kylaline"
+    if [ -z "$grupp" ]; then
+        grupp="kylaline"
+    fi
+
+    # Lisame kasutaja valitud või vaikimisi gruppi
+    sudo usermod -a -G $grupp $kasutajanimi
+
+    echo "Kasutaja $kasutajanimi lisati gruppi $grupp."
+
+else
+    echo "Kasutaja loomine ebaõnnestus."
+fi
+
+

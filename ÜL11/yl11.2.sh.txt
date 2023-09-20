@@ -1,0 +1,21 @@
+#!/bin/bash
+
+# Küsime kasutajalt faili nime, mille õiguseid kontrollida
+read -p "Sisesta faili nimi: " file_name
+
+# Küsime kasutajalt soovitud õigused numbrilisel kujul
+read -p "Sisesta soovitud õigused numbrilisel kujul (nt 644): " desired_permissions
+
+# Kontrollime, kas fail eksisteerib
+if [ -e "$file_name" ]; then
+    # Kontrollime, kas failil on õiged õigused
+    actual_permissions=$(stat -c %a "$file_name")
+    if [ "$actual_permissions" -eq "$desired_permissions" ]; then
+        echo "Fail $file_name on olemas ja õigustega korrektselt määratud."
+    else
+        echo "Hoiatus: Faili $file_name õigused on $actual_permissions, peaksid olema $desired_permissions!"
+    fi
+else
+    echo "Hoiatus: $file_name pole fail!"
+fi
+
