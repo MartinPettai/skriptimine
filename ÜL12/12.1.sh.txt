@@ -1,0 +1,6 @@
+
+#!/bin/bash
+
+# Kasutame awk'i, et eraldada ainult kasutajanimed /etc/passwd failist
+awk -F: '/^[^#]/ {print $1}' /etc/passwd
+

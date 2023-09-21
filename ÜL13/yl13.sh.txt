@@ -1,0 +1,28 @@
+#!/bin/bash
+
+# Funktsioon faili varundamiseks
+varunda() {
+    local failitee="$1"
+    local failinimi=$(basename "$failitee")
+    local kuupaev=$(date +"%Y-%m-%d_%H-%M-%S")
+    local varundkaust="/home/martin/backup"
+
+    # Kontrollime, kas varundikaust eksisteerib, kui mitte, siis loome selle
+    if [ ! -d "$varundkaust" ]; then
+        mkdir -p "$varundkaust"
+    fi
+
+    # Koostame varundfaili nime
+    local varundnimi="$varundkaust/fail_${kuupaev}_${failinimi}"
+
+    # Kopeerime faili varundkausta
+    cp "$failitee" "$varundnimi"
+
+    echo "Varundatud: $failinimi -> $varundnimi"
+}
+
+# Kasutame funktsiooni, et varundada konkreetne fail
+varunda "/home/martin/minufail.txt"
+
+
+

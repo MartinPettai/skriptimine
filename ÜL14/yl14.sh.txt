@@ -1,0 +1,83 @@
+#!/bin/bash
+
+# Funktsioon ekraani puhastamiseks ja menüü kuvamiseks
+kuva_menuu() {
+    clear
+    echo "--------------------------------------------------------"
+    echo "                 Tervetulemast Haldusmenüüsse           "
+    echo "--------------------------------------------------------"
+    echo "Vali üks järgmistest toimingutest:"
+    echo "1. Uuenda paketihalduri andmeid ja tarkvara"
+    echo "2. Paigalda Apache2 tarkvara ja käivita teenus"
+    echo "3. Eemalda Apache2 tarkvara"
+    echo "4. Välju"
+    echo "--------------------------------------------------------"
+}
+
+# Funktsioon paketihalduri andmete uuendamiseks ja tarkvara uuendamiseks
+uuenda_paketihaldur() {
+    kuva_menuu
+    echo "1. Uuendame paketihalduri andmeid ja tarkvara..."
+    sudo apt update && sudo apt upgrade -y
+    echo "Tarkvara on uuendatud."
+    read -n 1 -s -r -p "Vajuta suvalist klahvi jätkamiseks..."
+}
+
+# Funktsioon Apache2 paigaldamiseks ja teenuse käivitamiseks
+paigalda_apache() {
+    kuva_menuu
+    # Kontrollime, kas Apache2 on juba paigaldatud
+    if ! dpkg -l | grep -q apache2; then
+        echo "2. Paigaldame Apache2 tarkvara ja käivitame teenuse..."
+        sudo apt install apache2 -y
+        sudo systemctl start apache2
+        sudo systemctl enable apache2
+        echo "Apache2 on paigaldatud ja käivitatud."
+    else
+        echo "2. Apache2 on juba paigaldatud."
+    fi
+    read -n 1 -s -r -p "Vajuta suvalist klahvi jätkamiseks..."
+}
+
+# Funktsioon Apache2 eemaldamiseks
+eemalda_apache() {
+    kuva_menuu
+    # Kontrollime, kas Apache2 on paigaldatud
+    if dpkg -l | grep -q apache2; then
+        echo "3. Eemaldame Apache2 tarkvara ja sellega seotud paketid..."
+        sudo systemctl stop apache2
+        sudo systemctl disable apache2
+        sudo apt remove --purge apache2 -y
+        sudo apt autoremove -y
+        echo "Apache2 on eemaldatud."
+    else
+        echo "3. Apache2 ei ole paigaldatud."
+    fi
+    read -n 1 -s -r -p "Vajuta suvalist klahvi jätkamiseks..."
+}
+
+# Peamenüü
+while true; do
+    kuva_menuu
+    read -p "Vali tegevus (1/2/3/4): " valik
+
+    case $valik in
+        1)
+            uuenda_paketihaldur
+            ;;
+        2)
+            paigalda_apache
+            ;;
+        3)
+            eemalda_apache
+            ;;
+        4)
+            echo "Väljume menüüst."
+            exit 0
+            ;;
+        *)
+            echo "Vale valik! Palun vali 1, 2, 3 või 4."
+            read -n 1 -s -r -p "Vajuta suvalist klahvi jätkamiseks..."
+            ;;
+    esac
+done

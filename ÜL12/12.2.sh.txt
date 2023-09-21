@@ -1,0 +1,32 @@
+#!/bin/bash
+
+# Kontrollime, kas fail nimekiri.txt eksisteerib
+if [ ! -f "nimekiri.txt" ]; then
+    echo "Hoiatus: nimekiri.txt pole fail!"
+    exit 1
+fi
+
+# Loeme nimekirja.txt failist nimed ja töötleme neid
+while IFS= read -r line; do
+    # Teisendame nimed väiketähtedeks
+    name=$(echo "$line" | tr '[:upper:]' '[:lower:]')
+
+    # Eemaldame täpitähed ja asendame need "ouao" või sobiva tähemärgiga
+    name=$(echo "$name" | tr 'õüäö' 'ouao')
+
+    # Loodame kasutajanime eesnime ja perenime põhjal
+    username=$(echo "$name" | sed 's/ /./')
+
+    # Loodame juhusliku parooli
+    password=$(date +%s%N${RANDOM}${RANDOM} | sha256sum | head -c12)
+
+    # Lisame kasutaja süsteemi, kui seda veel ei eksisteeri
+    if id "$username" &>/dev/null; then
+        echo "Kasutaja $username juba eksisteerib."
+    else
+        # Lisame kasutaja ja määrame parooli
+        sudo useradd -m -s /bin/bash "$username"
+        echo "$username:$password" | sudo chpasswd
+        echo "$username.$name $password"
+    fi
+done < nimekiri.txt
